@@ -1,6 +1,6 @@
 import Footer from "@/components/layout/public/Footer";
 import Header from "@/components/layout/public/Header";
-import React, { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 
 const layout = ({ children }: { children: ReactNode }) => {
   return (

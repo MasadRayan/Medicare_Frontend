@@ -1,1 +1,1 @@
-export * from "./autn.valication"
+export * from "./autn.valication";
