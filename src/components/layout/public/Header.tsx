@@ -4,6 +4,7 @@ import Logo from "@/assets/svg/logo";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { useGetme, useLogout } from "@/hooks";
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import React from "react";
 
@@ -13,8 +14,10 @@ const Header = () => {
     { name: "About Us", url: "/about-us" },
   ];
 
-  const { data, isLoading, isError, refetch } = useGetme();
+  const { data, isLoading } = useGetme();
   const {mutate: logout} = useLogout();
+
+  const queryClient = useQueryClient()
 
   const handleLogout = () => {
     logout(undefined, {
@@ -24,6 +27,7 @@ const Header = () => {
           description: "You have been logged out successfully",
           type: "success",
         });
+        queryClient.removeQueries({ queryKey: ["user"] });
       },
 
       onError: (err) => {
@@ -56,16 +60,15 @@ const Header = () => {
           {!isLoading && !data && (
             <Button
               variant="outline"
-              render={<Link href="/login">Login</Link>}
+              render={<Link href="/login"/>}
               nativeButton={false}
             >
-              login
+              Login
             </Button>
           )}
           {!isLoading && data && (
             <Button
               variant="destructive"
-              nativeButton={false}
               onClick={handleLogout}
             >
               LogOut

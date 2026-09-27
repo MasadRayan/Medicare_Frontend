@@ -21,3 +21,10 @@ export const userLogout = () => {
         method: "POST"
     })
 }
+
+export const googleOAuth = (idToken : string) => {
+    return apiClient("/auth/google", {
+        method: "POST",
+        body: { idToken }
+    })
+}

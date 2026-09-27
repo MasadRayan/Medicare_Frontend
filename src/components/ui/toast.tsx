@@ -35,7 +35,18 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
     <ToastPrimitive.Root
       data-slot="toast"
       className={cn(
-        "group/toast pointer-events-auto absolute right-0 top-0 z-[calc(1000-var(--toast-index))] w-full origin-top rounded-2xl border bg-popover text-popover-foreground shadow-lg will-change-transform outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        "group/toast pointer-events-auto absolute right-0 top-0 z-[calc(1000-var(--toast-index))] w-full origin-top rounded-2xl border border-(--toast-line) bg-(--toast-surface) text-(--toast-fg) shadow-lg will-change-transform outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        "[--toast-surface:var(--popover)] [--toast-fg:var(--popover-foreground)] [--toast-muted:var(--muted-foreground)] [--toast-line:var(--border)]",
+        "data-[type=success]:[--toast-surface:var(--color-green-50)] data-[type=success]:[--toast-fg:var(--color-green-950)] data-[type=success]:[--toast-muted:var(--color-green-800)] data-[type=success]:[--toast-line:var(--color-green-200)]",
+        "data-[type=info]:[--toast-surface:var(--color-blue-50)] data-[type=info]:[--toast-fg:var(--color-blue-950)] data-[type=info]:[--toast-muted:var(--color-blue-800)] data-[type=info]:[--toast-line:var(--color-blue-200)]",
+        "data-[type=warning]:[--toast-surface:var(--color-amber-50)] data-[type=warning]:[--toast-fg:var(--color-amber-950)] data-[type=warning]:[--toast-muted:var(--color-amber-800)] data-[type=warning]:[--toast-line:var(--color-amber-200)]",
+        "data-[type=error]:[--toast-surface:var(--color-red-50)] data-[type=error]:[--toast-fg:var(--color-red-950)] data-[type=error]:[--toast-muted:var(--color-red-800)] data-[type=error]:[--toast-line:var(--color-red-200)]",
+        "data-[type=loading]:[--toast-surface:var(--color-slate-50)] data-[type=loading]:[--toast-fg:var(--color-slate-950)] data-[type=loading]:[--toast-muted:var(--color-slate-800)] data-[type=loading]:[--toast-line:var(--color-slate-200)]",
+        "dark:data-[type=success]:[--toast-surface:var(--color-green-950)] dark:data-[type=success]:[--toast-fg:var(--color-green-50)] dark:data-[type=success]:[--toast-muted:var(--color-green-200)] dark:data-[type=success]:[--toast-line:var(--color-green-800)]",
+        "dark:data-[type=info]:[--toast-surface:var(--color-blue-950)] dark:data-[type=info]:[--toast-fg:var(--color-blue-50)] dark:data-[type=info]:[--toast-muted:var(--color-blue-200)] dark:data-[type=info]:[--toast-line:var(--color-blue-800)]",
+        "dark:data-[type=warning]:[--toast-surface:var(--color-amber-950)] dark:data-[type=warning]:[--toast-fg:var(--color-amber-50)] dark:data-[type=warning]:[--toast-muted:var(--color-amber-200)] dark:data-[type=warning]:[--toast-line:var(--color-amber-800)]",
+        "dark:data-[type=error]:[--toast-surface:var(--color-red-950)] dark:data-[type=error]:[--toast-fg:var(--color-red-50)] dark:data-[type=error]:[--toast-muted:var(--color-red-200)] dark:data-[type=error]:[--toast-line:var(--color-red-800)]",
+        "dark:data-[type=loading]:[--toast-surface:var(--color-slate-950)] dark:data-[type=loading]:[--toast-fg:var(--color-slate-50)] dark:data-[type=loading]:[--toast-muted:var(--color-slate-200)] dark:data-[type=loading]:[--toast-line:var(--color-slate-800)]",
         "[--gap:0.75rem] [--height:var(--toast-frontmost-height,var(--toast-height))] [--offset-y:calc(var(--toast-offset-y)+calc(var(--toast-index)*var(--gap))+var(--toast-swipe-movement-y))] [--peek:0.75rem] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]",
         "h-(--height) [transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)+(var(--toast-index)*var(--peek))+(var(--shrink)*var(--height))))_scale(var(--scale))] [transition:transform_500ms_cubic-bezier(0.22,1,0.36,1),opacity_500ms,height_150ms]",
         "after:absolute after:bottom-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
@@ -87,7 +98,7 @@ function ToastDescription({
   return (
     <ToastPrimitive.Description
       data-slot="toast-description"
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("text-sm text-(--toast-muted)", className)}
       {...props}
     />
   )
@@ -120,7 +131,7 @@ function ToastClose({
       aria-label="Close toast"
       render={render}
       className={cn(
-        "relative shrink-0 text-muted-foreground after:absolute after:-inset-2 after:content-[''] hover:text-foreground",
+        "relative shrink-0 text-(--toast-muted) after:absolute after:-inset-2 after:content-[''] hover:text-(--toast-fg)",
         className
       )}
       {...props}
@@ -154,9 +165,7 @@ function ToastIcon({ type }: { type: string | undefined }) {
   }
 
   if (type === "error") {
-    icon = (
-      <OctagonXIcon className="text-destructive" aria-hidden="true" />
-    )
+    icon = <OctagonXIcon aria-hidden="true" />
   }
 
   if (type === "loading") {
@@ -172,42 +181,59 @@ function ToastIcon({ type }: { type: string | undefined }) {
   return (
     <span
       data-slot="toast-icon"
-      className="shrink-0 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4"
+      className="shrink-0 text-(--toast-muted) [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4"
     >
       {icon}
     </span>
   )
 }
 
-function ToastList() {
+function ToastTimer({ duration }: { duration: number }) {
+  return (
+    <span
+      data-slot="toast-timer"
+      aria-hidden="true"
+      style={{ "--toast-duration": `${duration}ms` } as React.CSSProperties}
+      className="pointer-events-none absolute inset-x-2 bottom-1 h-0.5 origin-left rounded-full bg-current opacity-40 [animation:toast-timer_var(--toast-duration)_linear_forwards] group-data-[expanded=true]/toast:[animation-play-state:paused]"
+    />
+  )
+}
+
+function ToastList({ timeout }: { timeout: number }) {
   const { toasts } = ToastPrimitive.useToastManager()
 
-  return toasts.map((toastItem) => (
-    <Toast key={toastItem.id} toast={toastItem}>
-      <ToastContent>
-        <ToastIcon type={toastItem.type} />
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <ToastTitle />
-          <ToastDescription />
-        </div>
-        <ToastAction />
-        <ToastClose />
-      </ToastContent>
-    </Toast>
-  ))
+  return toasts.map((toastItem) => {
+    const duration = toastItem.timeout ?? timeout
+
+    return (
+      <Toast key={toastItem.id} toast={toastItem}>
+        <ToastContent>
+          <ToastIcon type={toastItem.type} />
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <ToastTitle />
+            <ToastDescription />
+          </div>
+          <ToastAction />
+          <ToastClose />
+        </ToastContent>
+        {duration > 0 && <ToastTimer duration={duration} />}
+      </Toast>
+    )
+  })
 }
 
 function Toaster({
   children,
   toastManager = toast,
+  timeout = 3000,
   ...props
 }: ToastPrimitive.Provider.Props) {
   return (
-    <ToastProvider toastManager={toastManager} {...props}>
+    <ToastProvider toastManager={toastManager} timeout={timeout} {...props}>
       {children}
       <ToastPortal>
         <ToastViewport>
-          <ToastList />
+          <ToastList timeout={timeout} />
         </ToastViewport>
       </ToastPortal>
     </ToastProvider>
@@ -226,6 +252,7 @@ export {
   ToastDescription,
   ToastPortal,
   ToastProvider,
+  ToastTimer,
   ToastTitle,
   ToastViewport,
   createToastManager,
