@@ -29,7 +29,9 @@ export const PatientRegistrationSchema = z.object({
     ),
   contactNumber: z.
   string()
-  .regex(/^(?:\+?880|0)1[3-9]\d{8}$/)
+  .refine((val) => val === "" || /^(?:\+?880|0)1[3-9]\d{8}$/.test(val), {
+    message: "Please enter a valid Bangladeshi phone number",
+  })
   .optional(),
   confirmPassword: z.string().min(1, "Confirm Password is required"),
 }).refine((data) => data.password === data.confirmPassword, {

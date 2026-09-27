@@ -9,7 +9,7 @@ import { Button } from "../ui/button";
 import GoogleLoginComponent from "../modules/google-login/GoogleLogin";
 import Link from "next/link";
 import { PatientRegistrationSchema } from "@/validation";
-import { z } from "zod";
+import type { z } from "zod";
 
 const RegisterForm = () => {
   const router = useRouter();
