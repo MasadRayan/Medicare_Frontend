@@ -1,8 +1,14 @@
-"use client"
+"use client";
 import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { Field, FieldError, FieldGroup, FieldLabel, FieldSeparator } from "../ui/field";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "../ui/field";
 import { Input } from "../ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "../ui/button";
@@ -10,6 +16,9 @@ import GoogleLoginComponent from "../modules/google-login/GoogleLogin";
 import Link from "next/link";
 import { PatientRegistrationSchema } from "@/validation";
 import type { z } from "zod";
+import { useRegister } from "@/hooks";
+import { toast } from "../ui/toast";
+import { Spinner } from "../ui/spinner";
 
 const RegisterForm = () => {
   const router = useRouter();
@@ -17,23 +26,62 @@ const RegisterForm = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   type PatientDefaultValues = z.infer<typeof PatientRegistrationSchema>;
-  const defaultValues : PatientDefaultValues = {
-      name: "Mir",
-      email: "mir@gmail.com",
-      contactNumber: "0191234567",
-      password: "@User123456",
-      confirmPassword: "@User123456",
-    }
+  const defaultValues: PatientDefaultValues = {
+    name: "Mir",
+    email: "mir@gmail.com",
+    contactNumber: "01912345678",
+    password: "@User123456",
+    confirmPassword: "@User123456",
+  };
+
+  const { mutate: registration, isPending: registrationPending } = useRegister();
 
   const form = useForm({
     defaultValues,
     validators: {
-        onSubmit : PatientRegistrationSchema
+      onSubmit: PatientRegistrationSchema,
     },
     onSubmit: async ({ value }) => {
-        console.log(value)
-    }
+      const registrationData = {
+        name: value.name,
+        email: value.email,
+        password: value.password,
+        patient: {
+          contactNumber: value.contactNumber,
+        },
+      };
+      registration(registrationData, {
+        onSuccess: (res) => {
+          if (!res.success) {
+            toast.add({
+              title: "Server Failed",
+              description: "Something went wrong. Please try again",
+              type: "error",
+            });
+          }
 
+          toast.add({
+            title: "Registration Successful",
+            description: "Please check your email for verification",
+            type: "success",
+          });
+          const params = new URLSearchParams({
+            email: registrationData.email,
+          });
+          router.push(`/register/verify-account?${params.toString()}`);
+          console.log(res);
+        },
+        onError: (err) => {
+          toast.add({
+            title: "Registration Failed",
+            description:
+              err.message || "Something went wrong. Please try again",
+            type: "error",
+          });
+          console.log(err);
+        },
+      });
+    },
   });
 
   return (
@@ -216,7 +264,16 @@ const RegisterForm = () => {
             }}
           </form.Field>
 
-          <Button type="submit">Submit</Button>
+          <Button disabled={registrationPending} type="submit">
+            {registrationPending ? (
+              <>
+                {" "}
+                <Spinner /> Submitting..{" "}
+              </>
+            ) : (
+              "Register"
+            )}
+          </Button>
         </FieldGroup>
       </form>
 
@@ -224,7 +281,12 @@ const RegisterForm = () => {
 
       <GoogleLoginComponent />
 
-      <p className="flex justify-center items-center gap-2">Already have an account?{" "} <Link className="underline text-blue-500 " href="/login">Login Now</Link></p>
+      <p className="flex justify-center items-center gap-2">
+        Already have an account?{" "}
+        <Link className="underline text-blue-500 " href="/login">
+          Login Now
+        </Link>
+      </p>
     </div>
   );
 };
