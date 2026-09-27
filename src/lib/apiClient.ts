@@ -7,6 +7,7 @@ const apiClient = ofetch.create({
   headers: {
     "Content-Type": "application/json",
   },
+  credentials: "include",
 });
 
 export default apiClient;

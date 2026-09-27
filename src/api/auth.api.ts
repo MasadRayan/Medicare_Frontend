@@ -6,7 +6,7 @@ interface LoginPayload {
 }
 
 export const userLogin = (payload : LoginPayload) => {
-    return apiClient("/api/auth/login", {
+    return apiClient("/auth/login", {
         method: "POST",
         body: payload
     })
