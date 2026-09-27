@@ -1,5 +1,9 @@
+"use client";
+
 import Logo from "@/assets/svg/logo";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
+import { useGetme, useLogout } from "@/hooks";
 import Link from "next/link";
 import React from "react";
 
@@ -8,6 +12,31 @@ const Header = () => {
     { name: "Home", url: "/" },
     { name: "About Us", url: "/about-us" },
   ];
+
+  const { data, isLoading, isError, refetch } = useGetme();
+  const {mutate: logout} = useLogout();
+
+  const handleLogout = () => {
+    logout(undefined, {
+      onSuccess: () => {
+        toast.add({
+          title: "Logout Successful",
+          description: "You have been logged out successfully",
+          type: "success",
+        });
+      },
+
+      onError: (err) => {
+        toast.add({
+          title: "Logout Failed",
+          description: err.message || "An error occurred while logging out",
+          type: "error",
+        });
+      },
+    })
+  }
+
+  
 
   return (
     <header className="w-full h-16 border border-b">
@@ -24,13 +53,24 @@ const Header = () => {
           ))}
         </nav>
         <div>
-          <Button
-            variant="outline"
-            render={<Link href="/login">Login</Link>}
-            nativeButton={false}
-          >
-            login
-          </Button>
+          {!isLoading && !data && (
+            <Button
+              variant="outline"
+              render={<Link href="/login">Login</Link>}
+              nativeButton={false}
+            >
+              login
+            </Button>
+          )}
+          {!isLoading && data && (
+            <Button
+              variant="destructive"
+              nativeButton={false}
+              onClick={handleLogout}
+            >
+              LogOut
+            </Button>
+          )}
         </div>
       </div>
     </header>

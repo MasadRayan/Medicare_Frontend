@@ -11,3 +11,13 @@ export const userLogin = (payload : LoginPayload) => {
         body: payload
     })
 }
+
+export const getMe = () => {
+    return apiClient("/auth/me")
+}
+
+export const userLogout = () => {
+    return apiClient("/auth/logout", {
+        method: "POST"
+    })
+}
