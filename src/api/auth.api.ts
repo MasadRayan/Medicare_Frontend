@@ -22,9 +22,9 @@ export const userLogout = () => {
     })
 }
 
-export const googleOAuth = (idToken : string) => {
+export const googleOAuth = (payload: { idToken: string }) => {
     return apiClient("/auth/google", {
         method: "POST",
-        body: { idToken }
+        body: payload
     })
 }

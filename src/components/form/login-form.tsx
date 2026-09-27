@@ -3,7 +3,13 @@
 import { useForm } from "@tanstack/react-form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "../ui/field";
 import { loginSchema } from "@/validation";
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
@@ -11,6 +17,8 @@ import { useLogin } from "@/hooks";
 import { useRouter } from "next/navigation";
 import { toast } from "../ui/toast";
 import { Spinner } from "../ui/spinner";
+import Link from "next/link";
+import GoogleLoginComponent from "../modules/google-login/GoogleLogin";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -131,11 +139,21 @@ export default function LoginForm() {
           </form.Field>
 
           <Button disabled={loginPending} type="submit">
-            {loginPending ? <> <Spinner/> Submitting.. </> : "Login"}
-
+            {loginPending ? (
+              <>
+                {" "}
+                <Spinner /> Submitting..{" "}
+              </>
+            ) : (
+              "Login"
+            )}
           </Button>
         </FieldGroup>
       </form>
+
+      <FieldSeparator>Or</FieldSeparator>
+      <GoogleLoginComponent />
+      <p className="text-center">New to MediCare? <Link className="text-blue-500 font-medium underline" href="/register">Register Now!</Link></p>
     </div>
   );
 }
