@@ -1,6 +1,6 @@
 "use client";
+
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,14 +11,16 @@ import {
 } from "../ui/card";
 import { Button } from "../ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
-import { Field, FieldError, FieldLabel } from "../ui/field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "../ui/field";
+import { useEffect, useState } from "react";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useVerifyAccount } from "@/hooks";
 import { toast } from "../ui/toast";
+import { Spinner } from "../ui/spinner";
 
 const RESEND_COOLDOWN = 120;
 
-const VerifyAccountForm = () => {
+export default function VerifyAccountForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -26,7 +28,7 @@ const VerifyAccountForm = () => {
   const [isInvalid, setIsInvalid] = useState(false);
   const [resendTimer, setResendTimer] = useState(RESEND_COOLDOWN);
 
-  const { mutate: verifyAccount, isPending: vrifyPending } = useVerifyAccount();
+  const { mutate: verify, isPending: verifyPending } = useVerifyAccount();
 
   const email = searchParams.get("email") || "";
 
@@ -36,6 +38,18 @@ const VerifyAccountForm = () => {
     }
   }, [email, router]);
 
+  useEffect(() => {
+    if (resendTimer <= 0) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setResendTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [resendTimer]);
+
   const handleOTP = () => {
     if (otp.length !== 6) {
       setIsInvalid(true);
@@ -43,51 +57,47 @@ const VerifyAccountForm = () => {
     }
 
     const verifyData = {
-      email: email,
-      otp: otp,
+      email,
+      otp,
     };
 
-    verifyAccount(verifyData, {
+    verify(verifyData, {
       onSuccess: (res) => {
         if (!res.success) {
           toast.add({
-            title: "Server Failed",
+            title: "Server Failure",
             description: "Something went wrong. Please try again",
             type: "error",
           });
         }
 
         toast.add({
-          title: "Registration Successful",
-          description: "Please check your email for verification",
+          title: "Verification Successful",
+          description: "Welcome onboard",
           type: "success",
         });
-        router.push("/")
-        console.log(res);
+        router.push("/");
       },
       onError: (err) => {
         toast.add({
-          title: "Registration Failed",
+          title: "Verification failure",
           description: err.message || "Something went wrong. Please try again",
           type: "error",
         });
-        console.log(err);
       },
     });
-
-    console.log(verifyData);
   };
-  if (!email) {
 
+  if (!email) {
     return null;
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>verify Account</CardTitle>
+        <CardTitle>Verify Account</CardTitle>
         <CardDescription>
-          Please provide the verification code sent to {email}
+          Please provide the OTP we send you in your email
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -109,6 +119,7 @@ const VerifyAccountForm = () => {
                   setIsInvalid(false);
                 }
               }}
+              value={otp}
               autoComplete="off"
               name="otp"
               id="otp"
@@ -128,17 +139,25 @@ const VerifyAccountForm = () => {
                 errors={[{ message: "Invalid Code. Please try again" }]}
               />
             )}
+            <FieldDescription>Resend in {resendTimer}</FieldDescription>
           </Field>
         </form>
       </CardContent>
       <CardFooter>
-        <Button>Resend</Button>
-        <Button type="submit" form="otp-form">
-          Submit
+        <Button disabled={resendTimer > 0}>Resend</Button>
+        <Button disabled={verifyPending} type="submit" form="otp-form">
+          {
+            verifyPending? (
+              <>
+                {" "}
+                <Spinner /> Submitting..{" "}
+              </>
+            ) : (
+              "Submit"
+            )
+          }
         </Button>
       </CardFooter>
     </Card>
   );
-};
-
-export default VerifyAccountForm;
+}
